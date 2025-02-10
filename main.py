@@ -1,11 +1,12 @@
 import pygame, sys, math
 from pygame.math import Vector2
 
-WIDTH, HEIGHT = 600, 400
+WIDTH, HEIGHT, SCALE = 600, 300, 3
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT),vsync=1)
+screen = pygame.Surface((WIDTH,HEIGHT))
+display = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE),vsync=1)
 clock = pygame.time.Clock()
-fps = 60
+fps = 0
 dt = 0 #Delta time
 t = 0 #Time in milliseconds
 
@@ -107,7 +108,7 @@ class AnimationController:
 
 objects = []
 class Object:
-    def __init__(self, pos, size, velo=Vector2(), texture=(255,0,0), collider=True, rot=0):
+    def __init__(self, pos, size, velo=Vector2(), texture=(255,0,0), collider=True, doPhysics=True ,rot=0):
         self.pos = pos
         self.size = size
         self.velo = velo
@@ -117,6 +118,7 @@ class Object:
             self.texture = texture
         
         self.collider = collider
+        self.doPhysics = doPhysics
         self.rot = rot
         objects.append(self)
 
@@ -131,14 +133,14 @@ class Object:
     
     def Draw(self, camera):
         if isinstance(self, AnimationController):
-            screen.blit(pygame.transform.rotate(self.getFrame(),math.degrees(self.rot)), self.pos-camera.pos)
+            screen.blit(pygame.transform.rotate(self.getFrame(),math.degrees(self.rot)), ((int(self.pos.x)-int(camera.pos.x)),(int(self.pos.y)-int(camera.pos.y))))
         elif isinstance(self.texture, tuple):
-            pygame.draw.rect(screen, self.texture, pygame.Rect(self.pos.x-camera.pos.x,self.pos.y-camera.pos.y,self.size.x,self.size.y))
+            pygame.draw.rect(screen, self.texture, pygame.Rect((int(self.pos.x)-int(camera.pos.x)),(int(self.pos.y)-int(camera.pos.y)),self.size.x,self.size.y))
         elif isinstance(self.texture, pygame.Surface):
             screen.blit(pygame.transform.rotate(self.texture,math.degrees(-self.rot)), self.pos-camera.pos)
 
     def Physics(self, gravity, friction, dt):
-        if self.collider == True:
+        if self.collider == True and self.doPhysics == True:
             self.velo.x *= 1/(1+(friction*dt))
             self.pos.x += self.velo.x*dt
             for object in objects:
@@ -149,7 +151,7 @@ class Object:
                     if self.velo.x < 0:
                         self.pos.x = object.pos.x + object.size.x
 
-            self.velo.y += gravity
+            self.velo.y += gravity*dt
             self.pos.y += self.velo.y*dt
             for object in objects:
                 if object != self and object.rect().colliderect(self.rect()) and object.collider == True:
@@ -166,20 +168,34 @@ class Player(Object, AnimationController):
         AnimationController.__init__(self,spriteSheet,spriteSize,animation,frame,frameGap)
         #self.weapon = weapon
 
+    def isGrounded(self):
+        rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y+1)
+        for object in objects:
+            if object != self and rect.colliderect(object.rect()):
+                return True
+        return False
+    
+    def SetAnimation(self, animation):
+        if self.animation != animation:
+            self.animation = animation
+        
+
     def Update(self,time,dt):
         self.UpdateFrame(time,dt)
-        '''if self.velo.x > 0:
+        if self.velo.x > 0:
             self.flipX = False
         if self.velo.x < 0:
             self.flipX = True
-        if self.velo.length() < 0.01:
-            self.SetAnimation(0)
-        elif abs(self.velo.x) > abs(self.velo.y):
-            self.SetAnimation(1)
-        elif self.velo.y < 0:
-            self.SetAnimation(3)
-        elif self.velo.y > 0:
-            self.SetAnimation(2)'''
+        if self.isGrounded():
+            if abs(self.velo.x) > 0.1:
+                self.SetAnimation(1)
+            else:
+                self.SetAnimation(0)
+        else:
+            if abs(self.velo.x) > 0.1:
+                self.SetAnimation(3)
+            else:
+                self.SetAnimation(2)
 
 class Camera:
     def __init__(self, pos, focus, lerp=lambda x:x, speed=0.7):
@@ -240,7 +256,7 @@ class Camera:
 #wall = Object(Vector2(16,16),Vector2(16,16),texture=tileset.tiles[0])
 
 player = Player(Vector2(0,0),Vector2(16,32),"player.png",spriteSize=Vector2(16,32))
-ground = Object(Vector2(0,100),Vector2(300,20))
+ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
@@ -255,15 +271,14 @@ while True:
             #player.weapon.Attack()
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP]:
-        player.velo.y = -0.25
-    if keys[pygame.K_DOWN]:
-        player.velo.y = 0.25
+    x = 0
+    if keys[pygame.K_UP] and player.isGrounded():
+        player.velo.y = -.3
     if keys[pygame.K_LEFT]:
-        player.velo.x = -0.25
+        x -= 0.25
     if keys[pygame.K_RIGHT]:
-        player.velo.x = 0.25
-    player.velo = clampVec2(player.velo, 0.25)
+        x += 0.25
+    player.velo.x = x
     
     
     camera.Update(dt)
@@ -277,7 +292,8 @@ while True:
 
     #pygame.draw.circle(screen, (255,0,0), WorldToScreenPoint(camera, player.weapon.center()),5)
     #pygame.draw.circle(screen, (0,0,255), Vector2(pygame.mouse.get_pos()),5)
-    print(player.pos)
+    #print(player.velo.y)
+    display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
     pygame.display.update()
-    dt = clock.tick(144)
+    dt = clock.tick(fps)
     t += dt
