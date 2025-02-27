@@ -251,6 +251,10 @@ class Camera:
                 self.flipX = False''''''
         self.UpdateFrame(time, dt)'''
 
+class UI:
+    class Font:
+        def __init__(self, font, size)
+#WORK ON UI
 #tileset = TileSet("tileset.png")
 
 #wall = Object(Vector2(16,16),Vector2(16,16),texture=tileset.tiles[0])
@@ -261,39 +265,57 @@ ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
 #loadLevel("1.csv",tileset)
+def level():
+    global dt, t
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            #if event.type == pygame.MOUSEBUTTONDOWN:
+                #player.weapon.Attack()
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        #if event.type == pygame.MOUSEBUTTONDOWN:
-            #player.weapon.Attack()
+        keys = pygame.key.get_pressed()
+        x = 0
+        if keys[pygame.K_UP] and player.isGrounded():
+            player.velo.y = -.3
+        if keys[pygame.K_LEFT]:
+            x -= 0.25
+        if keys[pygame.K_RIGHT]:
+            x += 0.25
+        player.velo.x = x
+        
+        
+        camera.Update(dt)
+        screen.fill((45,51,66))
+        for object in objects:
+            object.Physics(.001, 0.1, dt)
+            if isinstance(object, AnimationController):
+                object.Update(t,dt)
+            object.Draw(camera)
+        #Draw(camera)
 
-    keys = pygame.key.get_pressed()
-    x = 0
-    if keys[pygame.K_UP] and player.isGrounded():
-        player.velo.y = -.3
-    if keys[pygame.K_LEFT]:
-        x -= 0.25
-    if keys[pygame.K_RIGHT]:
-        x += 0.25
-    player.velo.x = x
+        #pygame.draw.circle(screen, (255,0,0), WorldToScreenPoint(camera, player.weapon.center()),5)
+        #pygame.draw.circle(screen, (0,0,255), Vector2(pygame.mouse.get_pos()),5)
+        #print(player.velo.y)
+        display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
+        pygame.display.update()
+        dt = clock.tick(fps)
+        t += dt
+
+def menu():
+    global dt, t
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
     
-    
-    camera.Update(dt)
-    screen.fill((45,51,66))
-    for object in objects:
-        object.Physics(.001, 0.1, dt)
-        if isinstance(object, AnimationController):
-            object.Update(t,dt)
-        object.Draw(camera)
-    #Draw(camera)
+        screen.fill((45,51,66))
 
-    #pygame.draw.circle(screen, (255,0,0), WorldToScreenPoint(camera, player.weapon.center()),5)
-    #pygame.draw.circle(screen, (0,0,255), Vector2(pygame.mouse.get_pos()),5)
-    #print(player.velo.y)
-    display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
-    pygame.display.update()
-    dt = clock.tick(fps)
-    t += dt
+        display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
+        pygame.display.update()
+        dt = clock.tick(fps)
+        t += dt
+
+menu()
