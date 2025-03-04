@@ -1,5 +1,6 @@
-import pygame, sys, math
+import pygame, sys, math, UI
 from pygame.math import Vector2
+from shaders import *
 
 WIDTH, HEIGHT, SCALE = 600, 300, 3
 pygame.init()
@@ -19,6 +20,10 @@ def clampVec2(vec, max):
 
 def lerp(a, b, t, curve=lambda x:x):
     return a + (b - a) * curve(t)
+
+def mousePos():
+    global SCALE
+    return Vector2(pygame.mouse.get_pos())/SCALE
 
 '''def loadLevel(level, tileset):
     global object, player
@@ -251,9 +256,7 @@ class Camera:
                 self.flipX = False''''''
         self.UpdateFrame(time, dt)'''
 
-class UI:
-    class Font:
-        def __init__(self, font, size)
+
 #WORK ON UI
 #tileset = TileSet("tileset.png")
 
@@ -265,7 +268,8 @@ ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
 #loadLevel("1.csv",tileset)
-def level():
+def level(level):
+    print(level)
     global dt, t
     while True:
         for event in pygame.event.get():
@@ -303,19 +307,63 @@ def level():
         dt = clock.tick(fps)
         t += dt
 
-def menu():
+def mainMenu():
     global dt, t
+    titleFont = UI.Font("Qapixa-5y9Pa.ttf", 40)
+    #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","Qapixa-5y9Pa.ttf",level)
+    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"Qapixa-5y9Pa.ttf",level)
+    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"Qapixa-5y9Pa.ttf",level)
+    playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)
+    settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settings)
     while True:
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
+            #print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+        
+        mouse = pygame.mouse.get_pressed()
     
         screen.fill((45,51,66))
 
+        titleFont.Draw(screen, "Game Title", Vector2(300,75), (255,255,255), True)
+        playButton.Update(events, mousePos())
+        playButton.Draw(screen)
+        settingsButton.Update(events, mousePos())
+        settingsButton.Draw(screen)
+        #pygame.draw.circle(screen, (0,255,0), mousePos(), 5)
+
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
         pygame.display.update()
-        dt = clock.tick(fps)
+        dt = clock.tick(30)
         t += dt
 
-menu()
+def levels():
+    global dt, t
+    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"Qapixa-5y9Pa.ttf"),level,size=Vector2(24,24)) for i in range(5)]
+    backButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
+
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+        screen.fill((45,51,66))
+        for button in levelButtons:
+            button.Update(events,mousePos())
+            button.Draw(screen)
+        backButton.Update(events,mousePos())
+        backButton.Draw(screen)
+
+        display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
+        pygame.display.update()
+        dt = clock.tick(30)
+        t += dt
+
+def settings():
+    pass
+
+mainMenu()
