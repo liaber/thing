@@ -11,6 +11,8 @@ fps = 0
 dt = 0 #Delta time
 t = 0 #Time in milliseconds
 
+print(getattr(pygame, "IS_CE", False))
+
 def clampVec2(vec, max):
     if vec.length() == 0:
         return Vector2(0,0)
@@ -268,8 +270,7 @@ ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
 #loadLevel("1.csv",tileset)
-def level(level):
-    print(level)
+def level():
     global dt, t
     while True:
         for event in pygame.event.get():
@@ -297,6 +298,10 @@ def level(level):
             if isinstance(object, AnimationController):
                 object.Update(t,dt)
             object.Draw(camera)
+        surface = pygame.Surface((64,64))
+        pygame.draw.circle(surface, (163, 143, 15), (16,16), 16)
+        surface = pygame.transform.box_blur(surface, 2)
+        screen.blit(surface, (100,100), special_flags=pygame.BLEND_RGB_ADD)
         #Draw(camera)
 
         #pygame.draw.circle(screen, (255,0,0), WorldToScreenPoint(camera, player.weapon.center()),5)
