@@ -169,6 +169,11 @@ class Object:
                         self.pos.y = object.pos.y + object.size.y
                         self.velo.y = 0
 
+class Light(Object, AnimationController):
+    def __init__(self, pos, size, spriteSheet, weapon=None, velo=Vector2(), texture=(255,0,0), animation=0, frame=0, frameGap=250, spriteSize=Vector2(0,0),collider=True):
+        Object.__init__(self,pos,size,velo,texture,collider)
+        AnimationController.__init__(self,spriteSheet,spriteSize,animation,frame,frameGap)
+
 class Player(Object, AnimationController):
     def __init__(self, pos, size, spriteSheet, weapon=None, velo=Vector2(), texture=(255,0,0), animation=0, frame=0, frameGap=250, spriteSize=Vector2(0,0),collider=True):
         Object.__init__(self,pos,size,velo,texture,collider)
@@ -213,7 +218,7 @@ class Camera:
 
     def Update(self, dt):
         self.pos.x = lerp(self.pos.x, self.focus.center().x+(self.focus.velo.x*WIDTH)-(WIDTH/2), self.speed*(dt/1000), self.lerp)
-        self.pos.y = lerp(self.pos.y, self.focus.center().y+(self.focus.velo.y*HEIGHT)-(HEIGHT/2), (self.speed*(dt/1000))*(WIDTH/HEIGHT), self.lerp)
+        self.pos.y = lerp(self.pos.y, self.focus.center().y+(self.focus.velo.y*HEIGHT)-(HEIGHT/2), (self.speed*(dt/1000)*(WIDTH/HEIGHT)), self.lerp)
 
 '''class TileSet:
     def __init__(self, set, tileSize=TILESIZE):
@@ -299,8 +304,8 @@ def level():
                 object.Update(t,dt)
             object.Draw(camera)
         surface = pygame.Surface((64,64))
-        pygame.draw.circle(surface, (163, 143, 15), (16,16), 16)
-        surface = pygame.transform.box_blur(surface, 2)
+        pygame.draw.circle(surface, brightness((163, 143, 15),1), (32,32), 8)
+        surface = pygame.transform.gaussian_blur(surface, 8)
         screen.blit(surface, (100,100), special_flags=pygame.BLEND_RGB_ADD)
         #Draw(camera)
 
