@@ -11,7 +11,8 @@ fps = 0
 dt = 0 #Delta time
 t = 0 #Time in milliseconds
 
-print(getattr(pygame, "IS_CE", False))
+if getattr(pygame, "IS_CE", False) == False:
+    raise ImportError("This script requires pygame-ce!")
 
 def clampVec2(vec, max):
     if vec.length() == 0:
@@ -274,6 +275,8 @@ ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
+headerFont = UI.Font("Qapixa-5y9Pa.ttf", 40)
+
 #loadLevel("1.csv",tileset)
 def level():
     global dt, t
@@ -319,7 +322,6 @@ def level():
 
 def mainMenu():
     global dt, t
-    titleFont = UI.Font("Qapixa-5y9Pa.ttf", 40)
     #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","Qapixa-5y9Pa.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"Qapixa-5y9Pa.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"Qapixa-5y9Pa.ttf",level)
@@ -337,7 +339,7 @@ def mainMenu():
     
         screen.fill((45,51,66))
 
-        titleFont.Draw(screen, "Game Title", Vector2(300,75), (255,255,255), True)
+        headerFont.Draw(screen, "Game Title", Vector2(300,75), (255,255,255), True)
         playButton.Update(events, mousePos())
         playButton.Draw(screen)
         settingsButton.Update(events, mousePos())
@@ -352,7 +354,7 @@ def mainMenu():
 def levels():
     global dt, t
     levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"Qapixa-5y9Pa.ttf"),level,size=Vector2(24,24)) for i in range(5)]
-    backButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
+    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
 
     while True:
         events = pygame.event.get()
@@ -374,6 +376,52 @@ def levels():
         t += dt
 
 def settings():
-    pass
+    global dt, t
+
+    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
+    displaySettingsButton = UI.Button(Vector2(300,110), (255,255,255), 0.1, 7, 2, (0,0,0), ("Display Settings",16,"Qapixa-5y9Pa.ttf"),displaySettings)
+
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill((45,51,66))
+
+        headerFont.Draw(screen, "Settings", Vector2(300,50), (255,255,255), center=True)
+        backButton.Update(events,mousePos())
+        backButton.Draw(screen)
+        displaySettingsButton.Update(events,mousePos())
+        displaySettingsButton.Draw(screen)
+
+        display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
+        pygame.display.update()
+        dt = clock.tick(30)
+        t += dt        
+
+def displaySettings():
+    global dt, t
+
+    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",settings)
+
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill((45,51,66))
+
+        headerFont.Draw(screen, "Display Settings", Vector2(300,50), (255,255,255), center=True)
+        backButton.Update(events,mousePos())
+        backButton.Draw(screen)
+
+        display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
+        pygame.display.update()
+        dt = clock.tick(30)
+        t += dt
 
 mainMenu()

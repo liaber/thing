@@ -32,7 +32,9 @@ class Button:
             self.icon = pygame.image.load(icon).convert_alpha()
                 
         if size == "auto":
-            self.size = Vector2(self.icon.get_width(), self.icon.get_height())*1.5
+            padding = min(self.icon.get_width(), self.icon.get_height())*0.5
+            padding = Vector2(padding,padding)
+            self.size = Vector2(self.icon.get_width(), self.icon.get_height())+padding
         else:
             self.size = size
 
@@ -60,10 +62,28 @@ class Button:
             #print(event)
             if self.rect().collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN:
                 self.clicked = True
-                print("down")
+                #print("down")
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.clicked == True:
                 self.onClick()
-                print("up")
+                #print("up")
 
     def rect(self):
         return pygame.Rect(self.pos.x-(self.size.x/2), self.pos.y-(self.size.y/2), self.size.x, self.size.y)
+    
+class Slider:
+    def __init__(self, pos, sliderPos, displayWidth, range, lineColor, sliderColor, borderRadius, sliderBorderColor=False, increment=0.1):
+        self.pos = pos
+        self.sliderPos = sliderPos
+        self.displayWidth = displayWidth
+        self.range = range
+        self.lineColor = lineColor
+        self.sliderColor = sliderColor
+        self.borderRadius = borderRadius
+        if sliderBorderColor == False:
+            self.sliderBorderColor = sliderColor
+        else:
+            self.sliderBorderColor = sliderBorderColor
+        self.increment = increment
+
+    def Draw(self, surface):
+        
