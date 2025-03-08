@@ -1,16 +1,17 @@
 import pygame
 from shaders import *
 from pygame.math import Vector2
+from locals import *
 
 class Font:
     def __init__(self, font, size):
         self.font = pygame.font.Font(font,size)
 
     def render(self, text, color):
-        return self.font.render(text, True, color)
+        return self.font.render(text, False, color)
 
     def Draw(self, surface, text, pos, color, center=False):
-        surf = self.font.render(text, True, color)
+        surf = self.font.render(text, False, color)
         if center:
             surface.blit(surf, Vector2(pos.x-(surf.get_width()/2),pos.y-(surf.get_height()/2)))
         elif not center:
@@ -60,7 +61,7 @@ class Button:
     def Update(self, events, mousePos):
         for event in events:
             #print(event)
-            if self.rect().collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect().collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.clicked = True
                 #print("down")
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.clicked == True:
@@ -84,6 +85,34 @@ class Slider:
         else:
             self.sliderBorderColor = sliderBorderColor
         self.increment = increment
+        self.selected = False
 
     def Draw(self, surface):
+        displaySurf = pygame.Surface((self.displayWidth+4,8),flags=pygame.SRCALPHA)
+        lineRect = pygame.Rect(2,2,self.displayWidth,4)
+        pygame.draw.rect(displaySurf, self.lineColor, lineRect, border_radius=self.borderRadius)
+        pygame.draw.rect(displaySurf, self.sliderColor, self.sliderRect(), border_radius=self.borderRadius)
+        pygame.draw.rect(displaySurf, self.sliderBorderColor, self.sliderRect(), border_radius=self.borderRadius, width=1)
+        surface.blit(displaySurf, self.pos-(Vector2(displaySurf.get_width(),displaySurf.get_height())/2))
         
+    def sliderRect(self):
+        return pygame.Rect((mapRange(self.range,(0,self.displayWidth),self.sliderPos)),0,4,8)
+    
+    def rect(self):
+        refRect = self.sliderRect()
+        return pygame.Rect(refRect.left+self.pos.x-((self.displayWidth+4)/2),self.pos.y-4,4,8)
+
+    def Update(self, screen, mousePos, events):
+        #pygame.draw.rect(screen, (255,0,0), self.rect())
+        for event in events:
+            if self.rect().collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                self.selected = True
+                #print("down")
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.selected == True:
+                self.selected = False
+                self.sliderPos = roundIncrement(self.sliderPos, self.increment)
+
+        #print(self.selected)
+
+        if self.selected == True:
+            self.sliderPos = mapRange((self.pos.x,self.pos.x+self.displayWidth),self.range,clamp(mousePos.x+self.displayWidth/2,self.pos.x,self.pos.x+self.displayWidth))

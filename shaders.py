@@ -1,7 +1,4 @@
-def clamp(num, min, max):
-    if num > max: return max
-    if num < min: return min
-    return num
+from locals import *
 
 def brightness(color, multiplier):
     return (clamp((color[0]*multiplier),0,255),clamp((color[1]*multiplier),0,255),clamp((color[2]*multiplier),0,255))

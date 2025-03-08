@@ -1,6 +1,7 @@
 import pygame, sys, math, UI
 from pygame.math import Vector2
 from shaders import *
+from locals import *
 
 WIDTH, HEIGHT, SCALE = 600, 300, 3
 pygame.init()
@@ -13,16 +14,6 @@ t = 0 #Time in milliseconds
 
 if getattr(pygame, "IS_CE", False) == False:
     raise ImportError("This script requires pygame-ce!")
-
-def clampVec2(vec, max):
-    if vec.length() == 0:
-        return Vector2(0,0)
-    l = vec.length()
-    f = min(l,max)/l
-    return vec*f
-
-def lerp(a, b, t, curve=lambda x:x):
-    return a + (b - a) * curve(t)
 
 def mousePos():
     global SCALE
@@ -176,7 +167,7 @@ class Light(Object, AnimationController):
         AnimationController.__init__(self,spriteSheet,spriteSize,animation,frame,frameGap)
 
 class Player(Object, AnimationController):
-    def __init__(self, pos, size, spriteSheet, weapon=None, velo=Vector2(), texture=(255,0,0), animation=0, frame=0, frameGap=250, spriteSize=Vector2(0,0),collider=True):
+    def __init__(self, pos, size, spriteSheet, weapon=None, velo=Vector2(), texture=(255,0,0), animation=0, frame=0, frameGap=150, spriteSize=Vector2(0,0),collider=True):
         Object.__init__(self,pos,size,velo,texture,collider)
         AnimationController.__init__(self,spriteSheet,spriteSize,animation,frame,frameGap)
         #self.weapon = weapon
@@ -275,7 +266,8 @@ ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
 
-headerFont = UI.Font("Qapixa-5y9Pa.ttf", 40)
+headerFont = UI.Font("yoster.ttf", 40)
+subtextFont = UI.Font("yoster.ttf", 12)
 
 #loadLevel("1.csv",tileset)
 def level():
@@ -322,9 +314,9 @@ def level():
 
 def mainMenu():
     global dt, t
-    #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","Qapixa-5y9Pa.ttf",level)
-    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"Qapixa-5y9Pa.ttf",level)
-    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"Qapixa-5y9Pa.ttf",level)
+    #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","yoster.ttf",level)
+    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"yoster.ttf",level)
+    #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"yoster.ttf",level)
     playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)
     settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settings)
     while True:
@@ -353,7 +345,7 @@ def mainMenu():
 
 def levels():
     global dt, t
-    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"Qapixa-5y9Pa.ttf"),level,size=Vector2(24,24)) for i in range(5)]
+    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(5)]
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
 
     while True:
@@ -379,7 +371,7 @@ def settings():
     global dt, t
 
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
-    displaySettingsButton = UI.Button(Vector2(300,110), (255,255,255), 0.1, 7, 2, (0,0,0), ("Display Settings",16,"Qapixa-5y9Pa.ttf"),displaySettings)
+    displaySettingsButton = UI.Button(Vector2(300,110), (255,255,255), 0.1, 7, 2, (0,0,0), ("Display Settings",16,"yoster.ttf"),displaySettings)
 
     while True:
         events = pygame.event.get()
@@ -405,6 +397,7 @@ def displaySettings():
     global dt, t
 
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",settings)
+    displaySizeSlider = UI.Slider(Vector2(350,125),1,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
 
     while True:
         events = pygame.event.get()
@@ -418,6 +411,10 @@ def displaySettings():
         headerFont.Draw(screen, "Display Settings", Vector2(300,50), (255,255,255), center=True)
         backButton.Update(events,mousePos())
         backButton.Draw(screen)
+
+        displaySizeSlider.Draw(screen)
+        displaySizeSlider.Update(screen, mousePos(), events)
+        subtextFont.Draw(screen, "Display Size:", Vector2(250,125), (255,255,255), center=True)
 
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
         pygame.display.update()
