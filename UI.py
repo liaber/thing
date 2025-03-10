@@ -3,6 +3,26 @@ from shaders import *
 from pygame.math import Vector2
 from locals import *
 
+class Box:
+    def __init__(self, pos, size, color, borderColor, dropShadow, borderRadius, borderWidth):
+        self.pos = pos
+        self.size = size
+        self.color = color
+        self.borderColor = borderColor
+        self.dropShadow = dropShadow
+        self.borderRadius = borderRadius
+        self.borderWidth = borderWidth
+        
+    def Draw(self, surface):
+        rect = self.rect()
+        rect = pygame.Rect(rect.left+2,rect.top+2,rect.width,rect.height)
+        pygame.draw.rect(surface, brightness(self.borderColor,self.dropShadow), rect, border_radius=self.borderRadius)
+        pygame.draw.rect(surface, self.color, self.rect(), border_radius=self.borderRadius)
+        pygame.draw.rect(surface, self.borderColor, self.rect(), border_radius=self.borderRadius, width=self.borderWidth)
+
+    def rect(self):
+        return pygame.Rect(self.pos, self.size)
+
 class Font:
     def __init__(self, font, size):
         self.font = pygame.font.Font(font,size)
@@ -116,3 +136,6 @@ class Slider:
 
         if self.selected == True:
             self.sliderPos = mapRange((self.pos.x,self.pos.x+self.displayWidth),self.range,clamp(mousePos.x+self.displayWidth/2,self.pos.x,self.pos.x+self.displayWidth))
+
+    def get(self):
+        return roundIncrement(self.sliderPos, self.increment)

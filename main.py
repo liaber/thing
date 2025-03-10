@@ -277,6 +277,9 @@ def level():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pause()
             #if event.type == pygame.MOUSEBUTTONDOWN:
                 #player.weapon.Attack()
 
@@ -317,8 +320,9 @@ def mainMenu():
     #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","yoster.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"yoster.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"yoster.ttf",level)
-    playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)
+    playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)#Change to go to farthest non-completed level
     settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settings)
+    levelsButton = UI.Button(Vector2(330,200),(255,255,255),0.1,7,2,(0,0,0),"levels.png",levels)
     while True:
         events = pygame.event.get()
         for event in events:
@@ -336,6 +340,8 @@ def mainMenu():
         playButton.Draw(screen)
         settingsButton.Update(events, mousePos())
         settingsButton.Draw(screen)
+        levelsButton.Update(events, mousePos())
+        levelsButton.Draw(screen)
         #pygame.draw.circle(screen, (0,255,0), mousePos(), 5)
 
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
@@ -345,7 +351,7 @@ def mainMenu():
 
 def levels():
     global dt, t
-    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(5)]
+    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(20)]
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
 
     while True:
@@ -371,7 +377,7 @@ def settings():
     global dt, t
 
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
-    displaySettingsButton = UI.Button(Vector2(300,110), (255,255,255), 0.1, 7, 2, (0,0,0), ("Display Settings",16,"yoster.ttf"),displaySettings)
+    displaySizeSlider = UI.Slider(Vector2(350,125),1,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
 
     while True:
         events = pygame.event.get()
@@ -385,36 +391,38 @@ def settings():
         headerFont.Draw(screen, "Settings", Vector2(300,50), (255,255,255), center=True)
         backButton.Update(events,mousePos())
         backButton.Draw(screen)
-        displaySettingsButton.Update(events,mousePos())
-        displaySettingsButton.Draw(screen)
+
+        displaySizeSlider.Draw(screen)
+        displaySizeSlider.Update(screen, mousePos(), events)
+        subtextFont.Draw(screen, "Display Scale:", Vector2(240,125), (255,255,255), center=True)
+        subtextFont.Draw(screen, str(displaySizeSlider.get()), Vector2(410,125), (255,255,255), center=True)
 
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
         pygame.display.update()
         dt = clock.tick(30)
         t += dt        
 
-def displaySettings():
+def pause():
     global dt, t
-
-    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",settings)
-    displaySizeSlider = UI.Slider(Vector2(350,125),1,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
+    
+    resume = UI.Button(Vector2(300,150),(255,255,255),0.1,7,2,(0,0,0),"play.png",level)
+    box = UI.Box(Vector2(200,100),Vector2(200,100),(0,0,0),(255,255,255),0.1,7,2)
 
     while True:
         events = pygame.event.get()
         for event in events:
+            #print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+        
+        mouse = pygame.mouse.get_pressed()
 
-        screen.fill((45,51,66))
+        box.Draw(screen)
 
-        headerFont.Draw(screen, "Display Settings", Vector2(300,50), (255,255,255), center=True)
-        backButton.Update(events,mousePos())
-        backButton.Draw(screen)
-
-        displaySizeSlider.Draw(screen)
-        displaySizeSlider.Update(screen, mousePos(), events)
-        subtextFont.Draw(screen, "Display Size:", Vector2(250,125), (255,255,255), center=True)
+        headerFont.Draw(screen, "Paused", Vector2(300,125), (255,255,255), center=True)
+        resume.Draw(screen)
+        resume.Update(events, mousePos())
 
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
         pygame.display.update()
