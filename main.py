@@ -351,7 +351,7 @@ def mainMenu():
 
 def levels():
     global dt, t
-    levelButtons = [UI.Button(Vector2(32*(i+1),64),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(20)]
+    levelButtons = [UI.Button(Vector2((32*((i)%5))+224,(32*(((i)-((i)%5))/5))+90),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(20)]
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
 
     while True:
