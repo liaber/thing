@@ -212,6 +212,10 @@ class Camera:
         self.pos.x = lerp(self.pos.x, self.focus.center().x+(self.focus.velo.x*WIDTH)-(WIDTH/2), self.speed*(dt/1000), self.lerp)
         self.pos.y = lerp(self.pos.y, self.focus.center().y+(self.focus.velo.y*HEIGHT)-(HEIGHT/2), (self.speed*(dt/1000)*(WIDTH/HEIGHT)), self.lerp)
 
+class Collectible:
+    def __init__(self):
+        pass
+
 '''class TileSet:
     def __init__(self, set, tileSize=TILESIZE):
         self.tiles = {}
@@ -302,7 +306,7 @@ def level():
                 object.Update(t,dt)
             object.Draw(camera)
         surface = pygame.Surface((64,64))
-        pygame.draw.circle(surface, brightness((163, 143, 15),1), (32,32), 8)
+        pygame.draw.circle(surface, brightness((255,255,255),1), (32,32), 8)
         surface = pygame.transform.gaussian_blur(surface, 8)
         screen.blit(surface, (100,100), special_flags=pygame.BLEND_RGB_ADD)
         #Draw(camera)
