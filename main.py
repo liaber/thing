@@ -3,7 +3,7 @@ from pygame.math import Vector2
 from shaders import *
 from locals import *
 
-WIDTH, HEIGHT, SCALE = 600, 300, 3
+WIDTH, HEIGHT, SCALE = 600, 300, loadFile("settings.json")["displayScale"]
 pygame.init()
 screen = pygame.Surface((WIDTH,HEIGHT))
 display = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE),vsync=1)
@@ -326,7 +326,7 @@ def mainMenu():
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"yoster.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"yoster.ttf",level)
     playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)#Change to go to farthest non-completed level
-    settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settings)
+    settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settingsMenu)
     levelsButton = UI.Button(Vector2(330,200),(255,255,255),0.1,7,2,(0,0,0),"levels.png",levels)
     while True:
         events = pygame.event.get()
@@ -378,11 +378,17 @@ def levels():
         dt = clock.tick(30)
         t += dt
 
-def settings():
-    global dt, t
+def saveSettings():
+    settings = loadFile("settings.json")
+    settings["displayScale"] = SCALE
+    writeFile("settings.json", settings)
+
+def settingsMenu():
+    global dt, t, SCALE
 
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
     displaySizeSlider = UI.Slider(Vector2(350,125),SCALE,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
+    saveSettingsButton = UI.Button(Vector2(300,250),(255,255,255),0.1,7,2,(0,0,0),"check.png",print)
 
     while True:
         events = pygame.event.get()
@@ -399,8 +405,13 @@ def settings():
 
         displaySizeSlider.Draw(screen)
         displaySizeSlider.Update(screen, mousePos(), events)
+        SCALE = displaySizeSlider.get()
+        display = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE),vsync=1)
         subtextFont.Draw(screen, "Display Scale:", Vector2(240,125), (255,255,255), center=True)
         subtextFont.Draw(screen, str(displaySizeSlider.get()), Vector2(410,125), (255,255,255), center=True)
+
+        saveSettingsButton.Update(events,mousePos())
+        saveSettingsButton.Draw(screen)
 
         display.blit(pygame.transform.scale_by(screen, SCALE),(0,0))
         pygame.display.update()

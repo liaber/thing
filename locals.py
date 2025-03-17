@@ -1,3 +1,4 @@
+import json
 from pygame.math import Vector2
 
 def clampVec2(vec, max):
@@ -23,3 +24,16 @@ def clamp(num, min, max):
     if num > max: return max
     if num < min: return min
     return num
+
+def loadFile(file):
+    type = file.split(".")[1]
+    if type == "json":
+        with open(file, "r") as f:
+            data = json.load(f)
+            return data
+        
+def writeFile(file, data):
+    type = file.split(".")[1]
+    if type == "json":
+        with open(file, "w") as f:
+            json.dump(data, f, indent=4)
