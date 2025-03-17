@@ -38,7 +38,7 @@ class Font:
             surface.blit(surf, pos)
     
 class Button:
-    def __init__(self, pos, borderColor, dropShadow, borderRadius, borderSize, fillColor, icon, onClick, size="auto"):
+    def __init__(self, pos, borderColor, dropShadow, borderRadius, borderSize, fillColor, icon, onClick, size="auto", runArgs=[]):
         self.pos = pos
         self.borderColor = borderColor
         self.dropShadow = dropShadow
@@ -61,6 +61,7 @@ class Button:
 
         self.clicked = False
         self.onClick = onClick
+        self.runArgs = runArgs
 
     def Draw(self, surface):
 
@@ -85,7 +86,7 @@ class Button:
                 self.clicked = True
                 #print("down")
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.clicked == True:
-                self.onClick()
+                self.onClick(*self.runArgs)
                 #print("up")
 
     def rect(self):

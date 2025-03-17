@@ -274,7 +274,8 @@ headerFont = UI.Font("yoster.ttf", 40)
 subtextFont = UI.Font("yoster.ttf", 12)
 
 #loadLevel("1.csv",tileset)
-def level():
+def level(lvl):
+    print(lvl)
     global dt, t
     while True:
         for event in pygame.event.get():
@@ -355,7 +356,7 @@ def mainMenu():
 
 def levels():
     global dt, t
-    levelButtons = [UI.Button(Vector2((32*((i)%5))+224,(32*(((i)-((i)%5))/5))+90),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24)) for i in range(20)]
+    levelButtons = [UI.Button(Vector2((32*((i)%5))+224,(32*(((i)-((i)%5))/5))+90),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24),runArgs=[i+1]) for i in range(20)]
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
 
     while True:
@@ -381,7 +382,7 @@ def settings():
     global dt, t
 
     backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
-    displaySizeSlider = UI.Slider(Vector2(350,125),1,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
+    displaySizeSlider = UI.Slider(Vector2(350,125),SCALE,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
 
     while True:
         events = pygame.event.get()
