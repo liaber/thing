@@ -265,7 +265,7 @@ class Collectible:
 
 #wall = Object(Vector2(16,16),Vector2(16,16),texture=tileset.tiles[0])
 
-player = Player(Vector2(0,0),Vector2(16,32),"player.png",spriteSize=Vector2(16,32))
+player = Player(Vector2(0,0),Vector2(16,32),"Assets/player.png",spriteSize=Vector2(16,32))
 ground = Object(Vector2(0,100),Vector2(1000,20),doPhysics=False)
 
 camera = Camera(Vector2(0,0),player,speed=1)#lambda x:-(x**2)+(x*2)
@@ -325,9 +325,9 @@ def mainMenu():
     #playButton = UI.Button(Vector2(300,200),Vector2(100,30),(255,255,255),0.1,7,2,(0,0,0),"Play!","yoster.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),("Play!",25),"yoster.ttf",level)
     #playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),,"yoster.ttf",level)
-    playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"play.png",levels)#Change to go to farthest non-completed level
-    settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"settings.png",settingsMenu)
-    levelsButton = UI.Button(Vector2(330,200),(255,255,255),0.1,7,2,(0,0,0),"levels.png",levels)
+    playButton = UI.Button(Vector2(300,200),(255,255,255),0.1,7,2,(0,0,0),"Assets/play.png",levels)#Change to go to farthest non-completed level
+    settingsButton = UI.Button(Vector2(270,200),(255,255,255),0.1,7,2,(0,0,0),"Assets/settings.png",settingsMenu)
+    levelsButton = UI.Button(Vector2(330,200),(255,255,255),0.1,7,2,(0,0,0),"Assets/levels.png",levels)
     while True:
         events = pygame.event.get()
         for event in events:
@@ -357,7 +357,7 @@ def mainMenu():
 def levels():
     global dt, t
     levelButtons = [UI.Button(Vector2((32*((i)%5))+224,(32*(((i)-((i)%5))/5))+90),(255,255,255),0.1,7,2,(0,0,0),(str(i+1),16,"yoster.ttf"),level,size=Vector2(24,24),runArgs=[i+1]) for i in range(20)]
-    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
+    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"Assets/leftArrow.png",mainMenu)
 
     while True:
         events = pygame.event.get()
@@ -378,17 +378,22 @@ def levels():
         dt = clock.tick(30)
         t += dt
 
-def saveSettings():
+def saveSettings(displaySizeSlider):
+    global display, SCALE
+    SCALE = displaySizeSlider.get()
+    display = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE),vsync=1)
     settings = loadFile("settings.json")
     settings["displayScale"] = SCALE
     writeFile("settings.json", settings)
+    
+    settingsMenu()
 
 def settingsMenu():
     global dt, t, SCALE
 
-    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"leftArrow.png",mainMenu)
-    displaySizeSlider = UI.Slider(Vector2(350,125),SCALE,100,(1,3),brightness((255,255,255),.7),(255,255,255),2,increment=1)
-    saveSettingsButton = UI.Button(Vector2(300,250),(255,255,255),0.1,7,2,(0,0,0),"check.png",print)
+    backButton = UI.Button(Vector2(16,16),(255,255,255),0.1,7,2,(0,0,0),"Assets/leftArrow.png",mainMenu)
+    displaySizeSlider = UI.Slider(Vector2(350,125),SCALE,100,(1,4),brightness((255,255,255),.7),(255,255,255),2,increment=1)
+    saveSettingsButton = UI.Button(Vector2(300,250),(255,255,255),0.1,7,2,(0,0,0),"Assets/check.png",saveSettings,runArgs=[displaySizeSlider])
 
     while True:
         events = pygame.event.get()
@@ -405,8 +410,6 @@ def settingsMenu():
 
         displaySizeSlider.Draw(screen)
         displaySizeSlider.Update(screen, mousePos(), events)
-        SCALE = displaySizeSlider.get()
-        display = pygame.display.set_mode((WIDTH*SCALE, HEIGHT*SCALE),vsync=1)
         subtextFont.Draw(screen, "Display Scale:", Vector2(240,125), (255,255,255), center=True)
         subtextFont.Draw(screen, str(displaySizeSlider.get()), Vector2(410,125), (255,255,255), center=True)
 
@@ -421,7 +424,7 @@ def settingsMenu():
 def pause():
     global dt, t
     
-    resume = UI.Button(Vector2(300,150),(255,255,255),0.1,7,2,(0,0,0),"play.png",level)
+    resume = UI.Button(Vector2(300,150),(255,255,255),0.1,7,2,(0,0,0),"Assets/play.png",level)
     box = UI.Box(Vector2(200,100),Vector2(200,100),(0,0,0),(255,255,255),0.1,7,2)
 
     while True:

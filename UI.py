@@ -139,4 +139,7 @@ class Slider:
             self.sliderPos = mapRange((self.pos.x,self.pos.x+self.displayWidth),self.range,clamp(mousePos.x+self.displayWidth/2,self.pos.x,self.pos.x+self.displayWidth))
 
     def get(self):
-        return roundIncrement(self.sliderPos, self.increment)
+        try:
+            return round(roundIncrement(self.sliderPos, self.increment), len(str(self.increment).split(".")[1]))
+        except:
+            return roundIncrement(self.sliderPos, self.increment)
